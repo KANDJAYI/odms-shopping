@@ -1,24 +1,12 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-<<<<<<< HEAD
-import { getProductBySlug, getProductSlugs, getRelatedProducts } from "@/lib/supabase/queries";
-=======
 import { getProductBySlug, getRelatedProducts } from "@/lib/supabase/queries";
->>>>>>> 17416d8 (premier commit)
 import ProductPageContent from "./ProductPageContent";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-<<<<<<< HEAD
-export async function generateStaticParams() {
-  const slugs = await getProductSlugs();
-  return slugs.map((slug) => ({ slug }));
-}
-
-=======
->>>>>>> 17416d8 (premier commit)
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

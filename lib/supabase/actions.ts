@@ -54,11 +54,7 @@ export async function signInWithGoogle() {
       redirectTo: `${siteUrl}/auth/callback`,
     },
   });
-<<<<<<< HEAD
-  if (error) return { error: error.message };
-=======
   if (error) throw new Error(error.message);
->>>>>>> 17416d8 (premier commit)
   if (data.url) redirect(data.url);
 }
 
@@ -357,16 +353,9 @@ export async function adminUpdateProduct(id: string, formData: FormData) {
 export async function adminDeleteProduct(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("products").delete().eq("id", id);
-<<<<<<< HEAD
-  if (error) return { error: error.message };
-  revalidatePath("/admin/produits");
-  revalidatePath("/boutique");
-  return { success: true };
-=======
   if (error) throw new Error(error.message);
   revalidatePath("/admin/produits");
   revalidatePath("/boutique");
->>>>>>> 17416d8 (premier commit)
 }
 
 export async function adminToggleProductStatus(id: string, status: string) {
@@ -422,14 +411,8 @@ export async function adminUpdateCategory(id: string, formData: FormData) {
 export async function adminDeleteCategory(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("categories").delete().eq("id", id);
-<<<<<<< HEAD
-  if (error) return { error: error.message };
-  revalidatePath("/admin/categories");
-  return { success: true };
-=======
   if (error) throw new Error(error.message);
   revalidatePath("/admin/categories");
->>>>>>> 17416d8 (premier commit)
 }
 
 // ─── ADMIN — BRANDS ──────────────────────────────────────────────────────────
@@ -471,14 +454,8 @@ export async function adminUpdateBrand(id: string, formData: FormData) {
 export async function adminDeleteBrand(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("brands").delete().eq("id", id);
-<<<<<<< HEAD
-  if (error) return { error: error.message };
-  revalidatePath("/admin/marques");
-  return { success: true };
-=======
   if (error) throw new Error(error.message);
   revalidatePath("/admin/marques");
->>>>>>> 17416d8 (premier commit)
 }
 
 // ─── ADMIN — ORDERS ───────────────────────────────────────────────────────────
