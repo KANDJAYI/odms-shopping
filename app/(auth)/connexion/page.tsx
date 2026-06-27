@@ -12,12 +12,19 @@ function ConnexionForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/compte";
+  const oauthError = searchParams.get("error");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    oauthError === "oauth"
+      ? "La connexion Google a été annulée. Veuillez réessayer."
+      : oauthError === "callback"
+        ? "Échec de la connexion. Veuillez réessayer."
+        : null
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +77,7 @@ function ConnexionForm() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
           {/* Google */}
           <form action={signInWithGoogle}>
+            <input type="hidden" name="redirect" value={redirect} />
             <button type="submit"
               className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl py-3 text-sm font-medium text-[#0F172A] hover:bg-gray-50 active:bg-gray-100 transition-all">
               <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">

@@ -3,6 +3,7 @@
 import { createClient } from "./server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 
@@ -45,13 +46,29 @@ export async function signOut() {
   redirect("/");
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(formData?: FormData) {
   const supabase = await createClient();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+  // On dérive l'origine de la requête courante : fonctionne aussi bien en local
+  // qu'en production sans dépendre d'une variable d'env mal configurée.
+  const headersList = await headers();
+  const origin =
+    headersList.get("origin") ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "http://localhost:3000";
+
+  // Destination finale après connexion (ex : la page d'où vient l'utilisateur)
+  const next = (formData?.get("redirect") as string) || "/compte";
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${siteUrl}/auth/callback`,
+      redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
+      // access_type=offline + prompt=consent garantit l'obtention d'un refresh token
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
     },
   });
   if (error) throw new Error(error.message);

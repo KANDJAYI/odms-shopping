@@ -23,15 +23,28 @@ create table public.profiles (
 );
 
 -- Trigger : crée automatiquement un profil à l'inscription
+-- Gère l'inscription email/mot de passe (first_name/last_name) ET
+-- l'inscription Google OAuth (given_name/family_name/name/picture).
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, email, first_name, last_name)
+  insert into public.profiles (id, email, first_name, last_name, avatar_url)
   values (
     new.id,
     new.email,
-    new.raw_user_meta_data->>'first_name',
-    new.raw_user_meta_data->>'last_name'
+    coalesce(
+      new.raw_user_meta_data->>'first_name',
+      new.raw_user_meta_data->>'given_name',
+      split_part(coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', ''), ' ', 1)
+    ),
+    coalesce(
+      new.raw_user_meta_data->>'last_name',
+      new.raw_user_meta_data->>'family_name'
+    ),
+    coalesce(
+      new.raw_user_meta_data->>'avatar_url',
+      new.raw_user_meta_data->>'picture'
+    )
   );
   return new;
 end;
