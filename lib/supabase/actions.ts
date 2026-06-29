@@ -732,3 +732,90 @@ export async function uploadImage(bucket: string, formData: FormData): Promise<{
   const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(data.path);
   return { url: publicUrl };
 }
+
+// ─── ADMIN — IA (génération fiche produit via OpenAI) ─────────────────────────
+
+export interface GeneratedProductInfo {
+  name: string;
+  short_description: string;
+  description: string;
+  seo_title: string;
+  seo_description: string;
+}
+
+/**
+ * Analyse une photo de produit avec l'API Vision d'OpenAI et génère
+ * automatiquement le nom, les descriptions et les champs SEO en français.
+ */
+export async function generateProductInfo(
+  imageUrl: string,
+): Promise<{ data?: GeneratedProductInfo; error?: string }> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return { error: "Clé OpenAI manquante : ajoutez OPENAI_API_KEY dans .env.local." };
+  if (!imageUrl) return { error: "Aucune image à analyser." };
+
+  const prompt = `Analyse cette photo de produit destinée à la boutique en ligne Odm's Shopping (Gabon, prix en FCFA).
+À partir de ce que tu vois (type de produit, marque visible, couleur, matière, style), génère une fiche produit commerciale en français pour le marché gabonais.
+
+Réponds STRICTEMENT en JSON (sans markdown) avec ces clés :
+- "name": nom court et précis du produit (max 60 caractères), inclut la marque uniquement si elle est clairement visible.
+- "short_description": accroche d'une seule phrase (max 120 caractères).
+- "description": description détaillée et vendeuse (3 à 5 phrases) mettant en avant caractéristiques et bénéfices.
+- "seo_title": titre SEO au format « {Produit} au Gabon | Odm's Shopping » (max 60 caractères).
+- "seo_description": meta description SEO (max 155 caractères) incitant à l'achat, mentionnant livraison rapide partout au Gabon et paiement à la livraison.
+
+N'invente jamais une marque dont tu n'es pas sûr.`;
+
+  try {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        max_tokens: 800,
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content:
+              "Tu es un expert e-commerce qui rédige des fiches produits en français, commerciales, claires et optimisées SEO pour Odm's Shopping, une boutique en ligne au Gabon.",
+          },
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              { type: "image_url", image_url: { url: imageUrl } },
+            ],
+          },
+        ],
+      }),
+    });
+
+    if (!res.ok) {
+      const body = await res.text();
+      console.error("generateProductInfo OpenAI:", res.status, body);
+      return { error: `OpenAI a renvoyé une erreur (${res.status}). Vérifiez votre clé et votre crédit.` };
+    }
+
+    const json = await res.json();
+    const content: string | undefined = json?.choices?.[0]?.message?.content;
+    if (!content) return { error: "Réponse vide de l'IA." };
+
+    const parsed = JSON.parse(content) as Partial<GeneratedProductInfo>;
+    return {
+      data: {
+        name: parsed.name ?? "",
+        short_description: parsed.short_description ?? "",
+        description: parsed.description ?? "",
+        seo_title: parsed.seo_title ?? "",
+        seo_description: parsed.seo_description ?? "",
+      },
+    };
+  } catch (e) {
+    console.error("generateProductInfo:", e);
+    return { error: "Impossible d'analyser l'image pour le moment." };
+  }
+}

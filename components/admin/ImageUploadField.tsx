@@ -15,17 +15,25 @@ export default function ImageUploadField({
   label,
   defaultValue,
   className,
+  onChange,
 }: {
   name: string;
   bucket: string;
   label: string;
   defaultValue?: string;
   className?: string;
+  /** Appelé après un upload réussi ou un retrait, avec la nouvelle URL ("" si retirée). */
+  onChange?: (url: string) => void;
 }) {
   const [url, setUrl] = useState(defaultValue ?? "");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const setValue = (next: string) => {
+    setUrl(next);
+    onChange?.(next);
+  };
 
   const handleFile = (file: File) => {
     setError(null);
@@ -34,7 +42,7 @@ export default function ImageUploadField({
     startTransition(async () => {
       const res = await uploadImage(bucket, formData);
       if (res.error || !res.url) setError(res.error ?? "Échec de l'upload");
-      else setUrl(res.url);
+      else setValue(res.url);
     });
   };
 
@@ -48,7 +56,7 @@ export default function ImageUploadField({
           <Image src={url} alt="Aperçu" fill sizes="112px" className="object-cover" />
           <button
             type="button"
-            onClick={() => setUrl("")}
+            onClick={() => setValue("")}
             className="absolute top-1 right-1 bg-black/60 hover:bg-red-500 text-white rounded-full p-1 transition-colors"
             title="Retirer l'image"
           >

@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { adminCreateProduct, adminUpdateProduct } from "@/lib/supabase/actions";
+import { ArrowLeft, Sparkles, Loader2 } from "lucide-react";
+import { adminCreateProduct, adminUpdateProduct, generateProductInfo } from "@/lib/supabase/actions";
 import ImageUploadField from "@/components/admin/ImageUploadField";
 import type { Product, Category, Brand } from "@/types";
 
@@ -28,6 +28,38 @@ export default function ProductForm({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  // Champs remplis automatiquement par l'IA — donc contrôlés.
+  const [name, setName] = useState(product?.name ?? "");
+  const [shortDesc, setShortDesc] = useState(product?.short_description ?? "");
+  const [desc, setDesc] = useState(product?.description ?? "");
+  const [seoTitle, setSeoTitle] = useState(product?.seo_title ?? "");
+  const [seoDesc, setSeoDesc] = useState(product?.seo_description ?? "");
+
+  // État de l'analyse IA
+  const [imageUrl, setImageUrl] = useState(product?.main_image_url ?? "");
+  const [aiPending, startAi] = useTransition();
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiDone, setAiDone] = useState(false);
+
+  const runAi = (url: string) => {
+    if (!url) return;
+    setAiError(null);
+    setAiDone(false);
+    startAi(async () => {
+      const res = await generateProductInfo(url);
+      if (res.error || !res.data) {
+        setAiError(res.error ?? "Analyse impossible.");
+      } else {
+        setName(res.data.name);
+        setShortDesc(res.data.short_description);
+        setDesc(res.data.description);
+        setSeoTitle(res.data.seo_title);
+        setSeoDesc(res.data.seo_description);
+        setAiDone(true);
+      }
+    });
+  };
+
   const action = (formData: FormData) => {
     setError(null);
     startTransition(async () => {
@@ -50,22 +82,50 @@ export default function ProductForm({
         </button>
         <div>
           <h1 className="text-2xl font-bold text-[#0F172A]">{isEdit ? "Modifier le produit" : "Nouveau produit"}</h1>
-          <p className="text-sm text-[#64748B] mt-0.5">{isEdit ? product!.name : "Renseignez les informations du produit"}</p>
+          <p className="text-sm text-text-secondary mt-0.5">{isEdit ? product!.name : "Renseignez les informations du produit"}</p>
         </div>
       </div>
 
       <form action={action} className="grid lg:grid-cols-3 gap-6">
         {/* Colonne principale */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Bandeau IA */}
+          <div className="rounded-lg border border-green/30 bg-green-50/50 p-4 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-green/10 flex items-center justify-center shrink-0">
+              {aiPending ? <Loader2 size={18} className="text-green animate-spin" /> : <Sparkles size={18} className="text-green" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[#0F172A]">{"Remplissage automatique par l'IA"}</p>
+              <p className="text-xs text-text-secondary">
+                {aiPending ? "Analyse de la photo en cours…"
+                  : aiError ? <span className="text-red-600">{aiError}</span>
+                  : aiDone ? "Champs générés — vérifiez et ajustez si besoin."
+                  : "Ajoutez une photo : nom, descriptions et SEO seront générés automatiquement."}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => runAi(imageUrl)}
+              disabled={aiPending || !imageUrl}
+              className="shrink-0 flex items-center gap-1.5 text-xs font-semibold bg-green text-white px-3 py-2 rounded-lg hover:bg-[#15803d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title={!imageUrl ? "Ajoutez d'abord une photo" : "Analyser la photo"}
+            >
+              <Sparkles size={14} /> {aiPending ? "…" : aiDone ? "Régénérer" : "Analyser"}
+            </button>
+          </div>
+
           <Card title="Informations générales">
-            <Field label="Nom du produit" name="name" defaultValue={product?.name} placeholder="Nike Air Max 270" required />
+            <div>
+              <label className="block text-sm font-medium text-[#0F172A] mb-1.5">Nom du produit<span className="text-red-500 ml-0.5">*</span></label>
+              <input name="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Nike Air Max 270" className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-green transition-colors" />
+            </div>
             <div>
               <label className="block text-sm font-medium text-[#0F172A] mb-1.5">Description courte</label>
-              <input name="short_description" defaultValue={product?.short_description ?? ""} placeholder="Une ligne d'accroche" className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-green transition-colors" />
+              <input name="short_description" value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} placeholder="Une ligne d'accroche" className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-green transition-colors" />
             </div>
             <div>
               <label className="block text-sm font-medium text-[#0F172A] mb-1.5">Description complète</label>
-              <textarea name="description" defaultValue={product?.description ?? ""} rows={5} placeholder="Description détaillée du produit…" className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-green transition-colors resize-none" />
+              <textarea name="description" value={desc} onChange={(e) => setDesc(e.target.value)} rows={5} placeholder="Description détaillée du produit…" className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-green transition-colors resize-none" />
             </div>
           </Card>
 
@@ -79,10 +139,13 @@ export default function ProductForm({
           </Card>
 
           <Card title="Référencement (SEO)">
-            <Field label="Titre SEO" name="seo_title" defaultValue={product?.seo_title ?? ""} placeholder="Nike Air Max 270 au Gabon | Odm's Shopping" />
+            <div>
+              <label className="block text-sm font-medium text-[#0F172A] mb-1.5">Titre SEO</label>
+              <input name="seo_title" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} placeholder="Nike Air Max 270 au Gabon | Odm's Shopping" className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-green transition-colors" />
+            </div>
             <div>
               <label className="block text-sm font-medium text-[#0F172A] mb-1.5">Description SEO</label>
-              <textarea name="seo_description" defaultValue={product?.seo_description ?? ""} rows={2} placeholder="Description pour les moteurs de recherche…" className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-green transition-colors resize-none" />
+              <textarea name="seo_description" value={seoDesc} onChange={(e) => setSeoDesc(e.target.value)} rows={2} placeholder="Description pour les moteurs de recherche…" className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-green transition-colors resize-none" />
             </div>
           </Card>
         </div>
@@ -90,7 +153,14 @@ export default function ProductForm({
         {/* Colonne latérale */}
         <div className="space-y-6">
           <Card title="Image principale">
-            <ImageUploadField name="main_image_url" bucket="products" label="Image" defaultValue={product?.main_image_url} />
+            <ImageUploadField
+              name="main_image_url"
+              bucket="products"
+              label="Image"
+              defaultValue={product?.main_image_url}
+              onChange={(url) => { setImageUrl(url); runAi(url); }}
+            />
+            <p className="text-[11px] text-text-secondary">{"Dès l'ajout d'une photo, l'IA génère automatiquement la fiche."}</p>
           </Card>
 
           <Card title="Organisation">
