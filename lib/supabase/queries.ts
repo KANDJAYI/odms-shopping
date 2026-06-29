@@ -124,6 +124,25 @@ export async function getAdminProducts(): Promise<Product[]> {
   return (data ?? []) as Product[];
 }
 
+/** Un produit (tous statuts) par id — pour l'édition admin. */
+export async function getAdminProductById(id: string): Promise<Product | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select(`
+      *,
+      category:categories(*),
+      brand:brands(*),
+      images:product_images(*),
+      variants:product_variants(*)
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) { logError("getAdminProductById", error); return null; }
+  return data as Product;
+}
+
 // ─── CATEGORIES ─────────────────────────────────────────────────────────────
 
 export async function getCategories(): Promise<Category[]> {

@@ -58,6 +58,8 @@ export interface Product {
   is_new: boolean;
   is_promo: boolean;
   status: ProductStatus;
+  seo_title?: string;
+  seo_description?: string;
   category?: Category;
   brand?: Brand;
   images?: ProductImage[];

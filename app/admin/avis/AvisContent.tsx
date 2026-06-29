@@ -43,7 +43,7 @@ export default function AvisContent({ reviews }: { reviews: Review[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center">
+        <div className="bg-white rounded-lg border border-gray-100 p-16 text-center">
           <MessageSquare size={48} className="mx-auto text-gray-200 mb-4" />
           <p className="font-semibold text-[#0F172A]">Aucun avis</p>
         </div>
@@ -76,8 +76,8 @@ function ReviewCard({ review }: { review: Review }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex gap-4">
-      <div className="relative w-14 h-14 bg-[#F8FAFC] rounded-xl overflow-hidden shrink-0 border border-gray-100">
+    <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4 flex gap-4">
+      <div className="relative w-14 h-14 bg-[#F8FAFC] rounded-lg overflow-hidden shrink-0 border border-gray-100">
         {review.product?.main_image_url
           ? <Image src={review.product.main_image_url} alt={review.product.name} fill className="object-contain p-1" sizes="56px" />
           : <div className="w-full h-full flex items-center justify-center text-xl">📦</div>}
@@ -120,7 +120,7 @@ function ReviewCard({ review }: { review: Review }) {
 
 function Kpi({ label, value, accent = "text-[#0F172A]" }: { label: string; value: string; accent?: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+    <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
       <p className={`text-2xl font-extrabold ${accent}`}>{value}</p>
       <p className="text-xs text-text-secondary mt-1">{label}</p>
     </div>

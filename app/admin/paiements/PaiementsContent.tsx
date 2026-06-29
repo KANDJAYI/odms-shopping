@@ -64,19 +64,19 @@ export default function PaiementsContent({ payments }: { payments: Payment[] }) 
       </div>
 
       <div className="flex justify-end mb-4">
-        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 w-full sm:w-72">
+        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2 w-full sm:w-72">
           <Search size={15} className="text-gray-400" />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="N° commande, client, référence..." className="bg-transparent text-sm outline-none flex-1 text-[#0F172A]" />
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center">
+        <div className="bg-white rounded-lg border border-gray-100 p-16 text-center">
           <CreditCard size={48} className="mx-auto text-gray-200 mb-4" />
           <p className="font-semibold text-[#0F172A]">Aucun paiement</p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
@@ -132,8 +132,8 @@ function PaymentRow({ payment }: { payment: Payment }) {
 
 function Kpi({ icon: Icon, label, value, color }: { icon: typeof CreditCard; label: string; value: string; color: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}><Icon size={18} /></div>
+    <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4 flex items-center gap-3">
+      <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${color}`}><Icon size={18} /></div>
       <div className="min-w-0">
         <p className="text-lg font-extrabold text-[#0F172A] leading-none truncate">{value}</p>
         <p className="text-xs text-text-secondary mt-1">{label}</p>

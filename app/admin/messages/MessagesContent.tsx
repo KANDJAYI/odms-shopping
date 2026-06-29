@@ -27,7 +27,7 @@ export default function MessagesContent({ messages }: { messages: ContactMessage
       </div>
 
       {list.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center">
+        <div className="bg-white rounded-lg border border-gray-100 p-16 text-center">
           <Inbox size={48} className="mx-auto text-gray-200 mb-4" />
           <p className="font-semibold text-[#0F172A]">Aucun message</p>
           <p className="text-text-secondary text-sm mt-1">Les messages du formulaire de contact apparaîtront ici.</p>
@@ -59,7 +59,7 @@ function MessageCard({ message }: { message: ContactMessage }) {
   };
 
   return (
-    <div className={`bg-white rounded-2xl border shadow-sm p-4 ${read ? "border-gray-100" : "border-green/30 bg-green-50/30"}`}>
+    <div className={`bg-white rounded-lg border shadow-sm p-4 ${read ? "border-gray-100" : "border-green/30 bg-green-50/30"}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">

@@ -59,11 +59,11 @@ export default function CommandesContent({ initialOrders }: { initialOrders: Ord
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-4 flex flex-wrap gap-3">
+      <div className="bg-white rounded-lg border border-gray-100 p-4 flex flex-wrap gap-3">
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#16A34A]"
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#16A34A]"
         >
           <option value="">Tous les statuts</option>
           {Object.entries(ORDER_STATUS_LABELS).map(([k, v]) => (
@@ -73,7 +73,7 @@ export default function CommandesContent({ initialOrders }: { initialOrders: Ord
         <select
           value={filterPayment}
           onChange={(e) => setFilterPayment(e.target.value)}
-          className="text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#16A34A]"
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#16A34A]"
         >
           <option value="">Tous les paiements</option>
           <option value="cash_on_delivery">Espèces</option>
@@ -85,12 +85,12 @@ export default function CommandesContent({ initialOrders }: { initialOrders: Ord
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="N° commande ou client..."
-          className="text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#16A34A] flex-1 min-w-32"
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#16A34A] flex-1 min-w-32"
         />
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">

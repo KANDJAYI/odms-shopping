@@ -42,7 +42,7 @@ export default function LivraisonsContent({ orders }: { orders: Order[] }) {
       </div>
 
       {list.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center">
+        <div className="bg-white rounded-lg border border-gray-100 p-16 text-center">
           <Truck size={48} className="mx-auto text-gray-200 mb-4" />
           <p className="font-semibold text-[#0F172A]">Aucune livraison {tab === "active" ? "en cours" : "terminée"}</p>
         </div>
@@ -69,7 +69,7 @@ function DeliveryCard({ order }: { order: Order }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+    <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
       <div className="flex items-center justify-between mb-2">
         <p className="text-sm font-bold text-[#0F172A]">{order.order_number}</p>
         <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">{ORDER_STATUS_LABELS[status] ?? status}</span>
@@ -113,8 +113,8 @@ function DeliveryCard({ order }: { order: Order }) {
 
 function Kpi({ icon: Icon, label, value, color }: { icon: typeof Truck; label: string; value: string; color: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}><Icon size={18} /></div>
+    <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4 flex items-center gap-3">
+      <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${color}`}><Icon size={18} /></div>
       <div className="min-w-0">
         <p className="text-lg font-extrabold text-[#0F172A] leading-none truncate">{value}</p>
         <p className="text-xs text-text-secondary mt-1">{label}</p>

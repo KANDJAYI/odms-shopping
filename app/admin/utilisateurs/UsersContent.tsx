@@ -27,7 +27,7 @@ export default function UsersContent({ staff, currentUserId }: { staff: Profile[
         <p className="text-text-secondary text-sm mt-0.5">{staff.length} membre(s) du staff · gérez les rôles et accès</p>
       </div>
 
-      <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-5 flex items-start gap-2">
+      <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 mb-5 flex items-start gap-2">
         <ShieldCheck size={16} className="text-blue-600 mt-0.5 shrink-0" />
         <p className="text-xs text-blue-700">
           Les rôles <b>admin</b> et <b>super admin</b> donnent accès au back-office. Soyez prudent : ne retirez pas votre propre accès.
@@ -35,13 +35,13 @@ export default function UsersContent({ staff, currentUserId }: { staff: Profile[
       </div>
 
       {staff.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center">
+        <div className="bg-white rounded-lg border border-gray-100 p-16 text-center">
           <UserCog size={48} className="mx-auto text-gray-200 mb-4" />
           <p className="font-semibold text-[#0F172A] mb-1">Aucun membre du staff</p>
           <p className="text-text-secondary text-sm">Promouvez un client depuis la liste des clients ou ici.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">

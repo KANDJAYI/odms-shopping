@@ -19,7 +19,7 @@ export interface SettingsValues {
 }
 
 const inputCls =
-  "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-green transition-colors";
+  "w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-green transition-colors";
 
 export default function SettingsForm({ initial }: { initial: SettingsValues }) {
   const [saved, setSaved] = useState(false);
@@ -47,7 +47,7 @@ export default function SettingsForm({ initial }: { initial: SettingsValues }) {
   return (
     <form action={handleAction} className="space-y-5 max-w-3xl">
       {/* Infos boutique */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
         <div className="flex items-center gap-2 mb-4">
           <Store size={18} className="text-green" />
           <h2 className="font-semibold text-[#0F172A]">Informations générales</h2>
@@ -63,7 +63,7 @@ export default function SettingsForm({ initial }: { initial: SettingsValues }) {
       </div>
 
       {/* Livraison */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
         <div className="flex items-center gap-2 mb-4">
           <Truck size={18} className="text-green" />
           <h2 className="font-semibold text-[#0F172A]">Livraison</h2>
@@ -75,7 +75,7 @@ export default function SettingsForm({ initial }: { initial: SettingsValues }) {
       </div>
 
       {/* Réseaux sociaux */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
         <div className="flex items-center gap-2 mb-4">
           <Share2 size={18} className="text-green" />
           <h2 className="font-semibold text-[#0F172A]">Réseaux sociaux</h2>
@@ -91,7 +91,7 @@ export default function SettingsForm({ initial }: { initial: SettingsValues }) {
         <button
           type="submit"
           disabled={saving}
-          className="flex items-center gap-2 bg-green hover:bg-[#15803d] disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+          className="flex items-center gap-2 bg-green hover:bg-[#15803d] disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
         >
           <Save size={16} /> {saving ? "Enregistrement…" : "Enregistrer les modifications"}
         </button>

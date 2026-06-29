@@ -11,7 +11,7 @@ interface Props {
 
 export default function DeliveryTrackingCard({ recentDelivery }: Props) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
       <div className="flex items-center justify-between p-5 border-b border-gray-50">
         <h3 className="font-bold text-[#0F172A]">Suivi des livraisons en cours</h3>
         <Link href="/admin/livraisons" className="text-sm text-green hover:underline">
@@ -101,13 +101,13 @@ export default function DeliveryTrackingCard({ recentDelivery }: Props) {
               </div>
 
               <Link href="/admin/livraisons"
-                className="block w-full bg-green hover:bg-[#15803d] text-white text-center text-sm font-semibold py-2.5 rounded-xl transition-colors mb-2">
+                className="block w-full bg-green hover:bg-[#15803d] text-white text-center text-sm font-semibold py-2.5 rounded-lg transition-colors mb-2">
                 Gérer les livraisons
               </Link>
               <Link
                 href={getWhatsAppUrl(`Bonjour, concernant la livraison de la commande ${recentDelivery.order_number}`)}
                 target="_blank"
-                className="flex items-center justify-center gap-1.5 w-full border border-gray-200 text-[#0F172A] text-sm font-medium py-2.5 rounded-xl hover:border-green transition-colors"
+                className="flex items-center justify-center gap-1.5 w-full border border-gray-200 text-[#0F172A] text-sm font-medium py-2.5 rounded-lg hover:border-green transition-colors"
               >
                 <MapPin size={14} /> Contacter le client
               </Link>

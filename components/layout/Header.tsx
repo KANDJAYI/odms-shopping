@@ -51,7 +51,7 @@ export default function Header() {
               width={220}
               height={150}
               priority
-              className="h-14 w-auto object-contain"
+              className="h-14 w-auto object-contain scale-125 origin-left"
             />
           </Link>
 

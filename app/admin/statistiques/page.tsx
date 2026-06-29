@@ -148,8 +148,8 @@ function countBy<T>(arr: T[], key: (x: T) => string): Record<string, number> {
 
 function Kpi({ icon: Icon, label, value, color }: { icon: typeof DollarSign; label: string; value: string; color: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}><Icon size={18} /></div>
+    <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4 flex items-center gap-3">
+      <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${color}`}><Icon size={18} /></div>
       <div className="min-w-0">
         <p className="text-lg font-extrabold text-[#0F172A] leading-none truncate">{value}</p>
         <p className="text-xs text-text-secondary mt-1">{label}</p>
@@ -160,7 +160,7 @@ function Kpi({ icon: Icon, label, value, color }: { icon: typeof DollarSign; lab
 
 function Card({ title, subtitle, icon: Icon, children }: { title: string; subtitle?: string; icon?: typeof Package; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+    <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">
         {Icon && <Icon size={16} className="text-green" />}
         <div>

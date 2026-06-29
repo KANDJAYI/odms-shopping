@@ -57,8 +57,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     });
   }
 
+  // Commandes en attente de traitement (badge du menu)
+  const pendingOrders = orders.filter((o) => o.order_status === "pending").length;
+
   return (
-    <AdminLayoutClient adminName={adminName} adminRole={adminRole} notifications={notifications}>
+    <AdminLayoutClient
+      adminName={adminName}
+      adminRole={adminRole}
+      notifications={notifications}
+      pendingOrders={pendingOrders}
+    >
       {children}
     </AdminLayoutClient>
   );

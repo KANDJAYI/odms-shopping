@@ -9,12 +9,10 @@ import {
   ShoppingBag,
   Package,
   Tag,
-  Award,
   Users,
   Truck,
   CreditCard,
   Ticket,
-  Boxes,
   BarChart3,
   Star,
   MessageSquare,
@@ -27,22 +25,37 @@ import {
   X,
   ChevronDown,
   ExternalLink,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SITE_EMAIL, SITE_PHONE } from "@/lib/constants";
 import { signOut } from "@/lib/supabase/actions";
 
-const NAV: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number; chevron?: boolean }[] = [
+type NavIcon = typeof LayoutDashboard;
+type NavLeaf = { href: string; label: string; icon: NavIcon };
+type NavGroup = { label: string; icon: NavIcon; children: { href: string; label: string }[] };
+type NavItem = NavLeaf | NavGroup;
+
+const NAV: NavItem[] = [
   { href: "/admin/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
-  { href: "/admin/commandes", label: "Commandes", icon: ShoppingBag, badge: 24 },
-  { href: "/admin/produits", label: "Produits", icon: Package, chevron: true },
-  { href: "/admin/categories", label: "Catégories", icon: Tag, chevron: true },
-  { href: "/admin/marques", label: "Marques", icon: Award },
+  { href: "/admin/commandes", label: "Commandes", icon: ShoppingBag },
+  {
+    label: "Produits", icon: Package, children: [
+      { href: "/admin/produits", label: "Tous les produits" },
+      { href: "/admin/stocks", label: "Stocks" },
+    ],
+  },
+  {
+    label: "Catégories", icon: Tag, children: [
+      { href: "/admin/categories", label: "Toutes les catégories" },
+      { href: "/admin/marques", label: "Marques" },
+    ],
+  },
   { href: "/admin/clients", label: "Clients", icon: Users },
   { href: "/admin/livraisons", label: "Livreurs & Tracking", icon: Truck },
   { href: "/admin/paiements", label: "Paiements", icon: CreditCard },
   { href: "/admin/promotions", label: "Promotions & Coupons", icon: Ticket },
-  { href: "/admin/stocks", label: "Stocks", icon: Boxes },
   { href: "/admin/statistiques", label: "Rapports & Statistiques", icon: BarChart3 },
   { href: "/admin/avis", label: "Avis clients", icon: Star },
   { href: "/admin/messages", label: "Messages", icon: MessageSquare },
@@ -59,21 +72,27 @@ export interface AdminNotification {
 }
 
 export default function AdminLayoutClient({
-  children, adminName, adminRole, notifications,
+  children, adminName, adminRole, notifications, pendingOrders = 0,
 }: {
   children: React.ReactNode;
   adminName: string;
   adminRole: string;
   notifications: AdminNotification[];
+  pendingOrders?: number;
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [search, setSearch] = useState("");
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const notifRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
+
+  const isLinkActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
+  const toggleGroup = (label: string) => setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
 
   // Ferme les menus au clic extérieur
   useEffect(() => {
@@ -93,35 +112,111 @@ export default function AdminLayoutClient({
     }
   };
 
-  const Sidebar = () => (
+  const Sidebar = ({ collapsed = false }: { collapsed?: boolean }) => (
     <div className="flex flex-col h-full bg-night">
       {/* Logo */}
-      <div className="px-4 py-3 flex items-center justify-between border-b border-white/10">
-        <Link href="/admin/dashboard" className="flex items-center">
-          <Image src="/logo1.png" alt="Odm's Shopping" width={120} height={80} className="h-9 w-auto object-contain" />
-        </Link>
-        <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
-          <X size={18} />
-        </button>
+      <div className={cn("py-3 flex items-center border-b border-white/10", collapsed ? "px-2 justify-center" : "px-4 justify-between")}>
+        {!collapsed && (
+          <Link href="/admin/dashboard" className="flex items-center">
+            <Image src="/logo1.png" alt="Odm's Shopping" width={180} height={120} className="h-14 w-auto object-contain" />
+          </Link>
+        )}
+        <div className="flex items-center gap-1">
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
+            <X size={18} />
+          </button>
+          <button
+            onClick={() => setCollapsed((v) => !v)}
+            title={collapsed ? "Agrandir le menu" : "Réduire le menu"}
+            className="hidden lg:flex text-gray-400 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors"
+          >
+            {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          </button>
+        </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-2.5 py-2 overflow-y-auto scrollbar-hide">
-        {NAV.map(({ href, label, icon: Icon, badge, chevron }) => {
-          const isActive = pathname === href || pathname.startsWith(href + "/");
+        {NAV.map((item) => {
+          const Icon = item.icon;
+
+          // Groupe avec sous-menu
+          if ("children" in item) {
+            const groupActive = item.children.some((c) => isLinkActive(c.href));
+            const open = openGroups[item.label] ?? groupActive;
+
+            // Mode réduit : lien direct vers la première sous-page
+            if (collapsed) {
+              return (
+                <Link
+                  key={item.label}
+                  href={item.children[0].href}
+                  onClick={() => setSidebarOpen(false)}
+                  title={item.label}
+                  className={cn(
+                    "flex items-center justify-center px-0 py-2 rounded-lg mb-0.5 transition-colors text-[13px]",
+                    groupActive ? "bg-green text-white font-medium" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                  )}
+                >
+                  <Icon size={15} className="shrink-0" />
+                </Link>
+              );
+            }
+
+            return (
+              <div key={item.label} className="mb-0.5">
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(item.label)}
+                  aria-expanded={open}
+                  className={cn(
+                    "w-full flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-colors text-[13px]",
+                    groupActive ? "text-white font-medium" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                  )}
+                >
+                  <Icon size={15} className="shrink-0" />
+                  <span className="flex-1 text-left">{item.label}</span>
+                  <ChevronDown size={13} className={cn("text-gray-500 transition-transform", open && "rotate-180")} />
+                </button>
+                <div className={cn("overflow-hidden transition-all", open ? "max-h-40 mt-0.5" : "max-h-0")}>
+                  <div className="ml-4 pl-3 border-l border-white/10 flex flex-col gap-0.5 py-0.5">
+                    {item.children.map((c) => (
+                      <Link
+                        key={c.href}
+                        href={c.href}
+                        onClick={() => setSidebarOpen(false)}
+                        className={cn(
+                          "rounded-lg px-2.5 py-1.5 transition-colors text-[13px]",
+                          isLinkActive(c.href) ? "bg-green text-white font-medium" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                        )}
+                      >
+                        {c.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          // Lien simple
+          const isActive = isLinkActive(item.href);
+          const badge = item.href === "/admin/commandes" && pendingOrders > 0 ? pendingOrders : undefined;
           return (
             <Link
-              key={href}
-              href={href}
+              key={item.href}
+              href={item.href}
               onClick={() => setSidebarOpen(false)}
+              title={collapsed ? item.label : undefined}
               className={cn(
-                "flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg mb-0.5 transition-colors text-[13px]",
+                "flex items-center gap-2.5 rounded-lg mb-0.5 transition-colors text-[13px]",
+                collapsed ? "justify-center px-0 py-2" : "px-2.5 py-1.5",
                 isActive ? "bg-green text-white font-medium" : "text-gray-400 hover:bg-white/5 hover:text-white"
               )}
             >
               <Icon size={15} className="shrink-0" />
-              <span className="flex-1">{label}</span>
-              {badge !== undefined && (
+              {!collapsed && <span className="flex-1">{item.label}</span>}
+              {!collapsed && badge !== undefined && (
                 <span className={cn(
                   "text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-4 text-center",
                   isActive ? "bg-white/20 text-white" : "bg-[#1d4ed8] text-white"
@@ -129,15 +224,15 @@ export default function AdminLayoutClient({
                   {badge}
                 </span>
               )}
-              {chevron && <ChevronDown size={13} className="text-gray-500" />}
             </Link>
           );
         })}
       </nav>
 
       {/* Marque bas (carte) */}
+      {!collapsed && (
       <div className="px-2.5 pb-3">
-        <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 text-center">
+        <div className="bg-white/5 border border-white/10 rounded-lg p-2.5 text-center">
           <div className="flex items-center justify-center gap-1.5 mb-1.5">
             <div className="w-7 h-7 bg-white/10 rounded-md flex items-center justify-center shrink-0">
               <Image src="/logo1.png" alt="" width={48} height={32} className="h-5 w-auto object-contain" />
@@ -154,14 +249,15 @@ export default function AdminLayoutClient({
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex lg:w-52 flex-col shrink-0">
-        <Sidebar />
+      <aside className={cn("hidden lg:flex flex-col shrink-0 transition-all duration-200", collapsed ? "lg:w-16" : "lg:w-52")}>
+        <Sidebar collapsed={collapsed} />
       </aside>
 
       {/* Mobile sidebar */}
@@ -178,24 +274,13 @@ export default function AdminLayoutClient({
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Topbar */}
         <header className="bg-night text-white px-4 py-3 flex items-center gap-3 shrink-0">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-white/10 transition-colors shrink-0">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors shrink-0">
             <Menu size={20} />
           </button>
 
-          {/* Titre + welcome */}
-          <div className="hidden md:block shrink-0">
-            <h1 className="font-bold text-lg flex items-center gap-2 leading-none">
-              Tableau de bord
-              <span className="w-5 h-5 bg-green rounded-full flex items-center justify-center">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M20 6 9 17l-5-5"/></svg>
-              </span>
-            </h1>
-            <p className="text-gray-400 text-xs mt-0.5">Bienvenue, Administrateur 👋</p>
-          </div>
-
           {/* Recherche */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-auto">
-            <div className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-xl px-3 py-2 focus-within:border-green-light transition-colors">
+          <form onSubmit={handleSearch} className="flex-1 max-w-sm mx-auto">
+            <div className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-lg px-3 py-2 focus-within:border-green-light transition-colors">
               <Search size={16} className="text-gray-400 shrink-0" />
               <input
                 type="text"
@@ -207,20 +292,11 @@ export default function AdminLayoutClient({
             </div>
           </form>
 
-          {/* Voir boutique */}
-          <Link
-            href="/"
-            target="_blank"
-            className="hidden md:flex items-center gap-1.5 border border-white/20 hover:bg-white/10 px-3 py-2 rounded-xl text-sm font-medium transition-colors shrink-0"
-          >
-            Voir la boutique <ExternalLink size={14} />
-          </Link>
-
           {/* Notifications */}
           <div className="relative shrink-0" ref={notifRef}>
             <button
               onClick={() => { setNotifOpen((v) => !v); setUserOpen(false); }}
-              className="relative p-2 rounded-xl hover:bg-white/10 transition-colors"
+              className="relative p-2 rounded-lg hover:bg-white/10 transition-colors"
               aria-label="Notifications"
             >
               <Bell size={20} className="text-gray-300" />
@@ -229,7 +305,7 @@ export default function AdminLayoutClient({
               )}
             </button>
             {notifOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 text-[#0F172A]">
+              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden z-50 text-[#0F172A]">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
                   <p className="font-bold text-sm">Notifications</p>
                   <span className="text-xs text-green font-medium">{notifications.length} récentes</span>
@@ -261,19 +337,15 @@ export default function AdminLayoutClient({
           <div className="relative shrink-0" ref={userRef}>
             <button
               onClick={() => { setUserOpen((v) => !v); setNotifOpen(false); }}
-              className="flex items-center gap-2 hover:bg-white/10 rounded-xl p-1 pr-2 transition-colors"
+              className="flex items-center gap-2 hover:bg-white/10 rounded-lg p-1 pr-2 transition-colors"
             >
               <div className="w-9 h-9 bg-green rounded-full flex items-center justify-center text-white font-bold text-sm">
                 {adminName.slice(0, 2).toUpperCase()}
               </div>
-              <div className="hidden md:block text-left leading-none">
-                <p className="text-sm font-medium">{adminName}</p>
-                <p className="text-gray-400 text-xs mt-0.5">{adminRole}</p>
-              </div>
-              <ChevronDown size={15} className="hidden md:block text-gray-400" />
+              <ChevronDown size={15} className="text-gray-400" />
             </button>
             {userOpen && (
-              <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 text-[#0F172A] py-1.5">
+              <div className="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden z-50 text-[#0F172A] py-1.5">
                 <Link href="/admin/parametres" onClick={() => setUserOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors">
                   <Settings size={15} className="text-gray-500" /> Paramètres
                 </Link>

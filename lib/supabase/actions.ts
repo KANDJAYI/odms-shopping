@@ -711,7 +711,10 @@ export async function createContactMessage(formData: FormData) {
 
 // ─── ADMIN — IMAGE UPLOAD ─────────────────────────────────────────────────────
 
-export async function uploadImage(bucket: string, file: File): Promise<string | null> {
+export async function uploadImage(bucket: string, formData: FormData): Promise<{ url?: string; error?: string }> {
+  const file = formData.get("file") as File | null;
+  if (!file || file.size === 0) return { error: "Aucun fichier" };
+
   const supabase = await createClient();
   const ext = file.name.split(".").pop();
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -721,8 +724,11 @@ export async function uploadImage(bucket: string, file: File): Promise<string | 
     upsert: false,
   });
 
-  if (error) { console.error("uploadImage:", error); return null; }
+  if (error) {
+    console.error("uploadImage:", error);
+    return { error: error.message };
+  }
 
   const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(data.path);
-  return publicUrl;
+  return { url: publicUrl };
 }

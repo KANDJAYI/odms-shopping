@@ -174,7 +174,7 @@ export default async function AdminDashboardPage() {
       {/* KPI — 2 cards graphiques + 4 cards stats */}
       <div className="grid grid-cols-2 lg:grid-cols-8 gap-4 items-stretch">
         {/* Ventes totales */}
-        <div className="col-span-2 bg-linear-to-br from-[#0f2557] to-[#1d4ed8] rounded-2xl p-4 text-white relative overflow-hidden">
+        <div className="col-span-2 bg-linear-to-br from-[#0f2557] to-[#1d4ed8] rounded-lg p-4 text-white relative overflow-hidden">
           <div className="flex items-start justify-between mb-1">
             <div>
               <p className="text-blue-200 text-xs">Ventes totales</p>
@@ -186,7 +186,7 @@ export default async function AdminDashboardPage() {
                 <ArrowUp size={10} /> Commandes livrées seulement
               </p>
             </div>
-            <div className="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center">
+            <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
               <DollarSign size={16} />
             </div>
           </div>
@@ -196,7 +196,7 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Commandes totales */}
-        <div className="col-span-2 bg-linear-to-br from-[#0d5c2e] to-green rounded-2xl p-4 text-white relative overflow-hidden">
+        <div className="col-span-2 bg-linear-to-br from-[#0d5c2e] to-green rounded-lg p-4 text-white relative overflow-hidden">
           <div className="flex items-start justify-between mb-1">
             <div>
               <p className="text-green-100 text-xs">Commandes totales</p>
@@ -205,7 +205,7 @@ export default async function AdminDashboardPage() {
                 <ArrowUp size={10} /> {stats.deliveredOrders} livrées · {stats.pendingOrders} en attente
               </p>
             </div>
-            <div className="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center">
+            <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
               <ShoppingBag size={16} />
             </div>
           </div>
@@ -226,16 +226,16 @@ export default async function AdminDashboardPage() {
 
       {/* Graphiques + commandes récentes */}
       <div className="grid lg:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
           <SalesAreaChart data={salesChartData} />
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col">
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4 flex flex-col">
           <h3 className="font-bold text-[#0F172A] text-sm mb-3">Statut des commandes</h3>
           <div className="flex-1 flex items-center">
             <OrderDonutChart statusCounts={statusCounts} />
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
             <h3 className="font-bold text-[#0F172A] text-sm">Commandes récentes</h3>
             <Link href="/admin/commandes" className="text-xs text-green hover:underline">Voir toutes</Link>
@@ -248,7 +248,7 @@ export default async function AdminDashboardPage() {
                 <Link
                   key={o.id}
                   href="/admin/commandes"
-                  className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
                     <ShoppingBag size={15} className="text-gray-400" />
@@ -273,7 +273,7 @@ export default async function AdminDashboardPage() {
       {/* Top produits + stock faible */}
       <div className="grid lg:grid-cols-3 gap-4">
         {/* Produits récents */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm lg:col-span-2">
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm lg:col-span-2">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
             <h3 className="font-bold text-[#0F172A] text-sm">Produits récents</h3>
             <Link href="/admin/produits" className="text-xs text-green hover:underline">Voir tout</Link>
@@ -298,7 +298,7 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Alertes stock faible */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
             <h3 className="font-bold text-[#0F172A] text-sm">Alertes stock faible</h3>
             <Link href="/admin/produits" className="text-xs text-green hover:underline">Voir tout</Link>
@@ -328,7 +328,7 @@ export default async function AdminDashboardPage() {
       <DeliveryTrackingCard recentDelivery={recentDelivery} />
 
       {/* Stats bas */}
-      <div className="bg-night rounded-2xl p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="bg-night rounded-lg p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {[
           { icon: Users, label: "Total clients", value: String(stats.totalCustomers), color: "text-blue-300" },
           { icon: ShieldCheck, label: "Panier moyen", value: `${Math.round(stats.avgOrderValue / 1000)}K`, suffix: "FCFA", color: "text-green-light" },
@@ -339,7 +339,7 @@ export default async function AdminDashboardPage() {
           const Icon = s.icon;
           return (
             <div key={s.label} className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+              <div className="w-11 h-11 bg-white/10 rounded-lg flex items-center justify-center shrink-0">
                 <Icon size={20} className={s.color} />
               </div>
               <div>
@@ -375,7 +375,7 @@ function StatCard({
   trend?: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3.5 flex flex-col h-full">
+    <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-3.5 flex flex-col h-full">
       <div className="flex items-start justify-between mb-3">
         <p className="text-xs text-text-secondary">{label}</p>
         <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconColor}`}>
